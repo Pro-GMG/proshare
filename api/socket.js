@@ -10,25 +10,23 @@ export default async function handler(req, res) {
         wss.on('connection', (ws) => {
             let userName = null;
             let userIP = req.headers['x-forwarded-for'] || '0.0.0.0';
+            let userPassword = ''; // ← Şifreyi sakla
 
             ws.on('message', (message) => {
                 try {
                     const data = JSON.parse(message);
 
-                    // ============================================
-                    // 1. KAYIT (register)
-                    // ============================================
+                    // ===== KAYIT (register) =====
                     if (data.type === 'register') {
                         userName = data.name;
-                        clients.set(userName, { ws, ip: userIP });
+                        userPassword = data.password || ''; // ← Şifreyi kaydet
+                        clients.set(userName, { ws, ip: userIP, password: userPassword });
                         ws.send(JSON.stringify({ type: 'your-ip', ip: userIP }));
                         broadcastPeers();
                         console.log(`✅ ${userName} bağlandı (${userIP})`);
                     }
 
-                    // ============================================
-                    // 2. ÇIKIŞ (leave) - BURAYI EKLEDİM
-                    // ============================================
+                    // ===== ÇIKIŞ (leave) =====
                     if (data.type === 'leave') {
                         if (userName) {
                             clients.delete(userName);
@@ -37,13 +35,11 @@ export default async function handler(req, res) {
                         }
                     }
 
-                    // ============================================
-                    // 3. ŞİFRE KONTROLÜ (auth_check)
-                    // ============================================
+                    // ===== ŞİFRE KONTROLÜ (auth_check) =====
                     if (data.type === 'auth_check') {
                         const target = clients.get(data.target);
                         if (target) {
-                            // Şifre kontrolü (basit)
+                            // target.password ARTIK VAR!
                             const targetPassword = target.password || '';
                             if (targetPassword && targetPassword !== data.password) {
                                 ws.send(JSON.stringify({
@@ -66,9 +62,7 @@ export default async function handler(req, res) {
                         }
                     }
 
-                    // ============================================
-                    // 4. WEBRTC SİNYALLERİ (offer, answer, candidate)
-                    // ============================================
+                    // ===== WEBRTC SİNYALLERİ =====
                     if (data.type === 'offer' || data.type === 'answer' || data.type === 'candidate') {
                         const target = clients.get(data.target);
                         if (target) {
@@ -78,9 +72,6 @@ export default async function handler(req, res) {
                                 sdp: data.sdp || undefined,
                                 candidate: data.candidate || undefined
                             }));
-                            console.log(`📤 ${data.type} -> ${data.target}`);
-                        } else {
-                            console.log(`❌ Hedef bulunamadı: ${data.target}`);
                         }
                     }
 
@@ -107,10 +98,6 @@ export default async function handler(req, res) {
 
     res.status(200).json({ message: 'ProShare WebSocket' });
 }
-
-// ============================================================
-//  TÜM CİHAZLARA PEER LİSTESİ GÖNDER
-// ============================================================
 
 function broadcastPeers() {
     const peers = Array.from(clients.keys());
