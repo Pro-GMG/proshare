@@ -2,67 +2,76 @@
 import { WebSocketServer } from 'ws';
 
 const clients = new Map();
-let wss = null;
 
 export default async function handler(req, res) {
     if (req.headers.upgrade === 'websocket') {
-        if (!wss) {
-            wss = new WebSocketServer({ noServer: true });
+        const wss = new WebSocketServer({ noServer: true });
 
-            wss.on('connection', (ws) => {
-                let userName = null;
-                let userIP = req.headers['x-forwarded-for'] || '0.0.0.0';
+        wss.on('connection', (ws) => {
+            let userName = null;
+            let userIP = req.headers['x-forwarded-for'] || '0.0.0.0';
 
-                ws.on('message', (message) => {
-                    try {
-                        const data = JSON.parse(message);
+            ws.on('message', (message) => {
+                try {
+                    const data = JSON.parse(message);
 
-                        if (data.type === 'register') {
-                            userName = data.name;
-                            clients.set(userName, { ws, ip: userIP });
-                            ws.send(JSON.stringify({
-                                type: 'your-ip',
-                                ip: userIP
-                            }));
-                            broadcastPeers();
-                            console.log(`✅ ${userName} bağlandı (${userIP})`);
-                        }
-
-                        if (data.type === 'offer' || data.type === 'answer' || data.type === 'candidate') {
-                            const target = clients.get(data.target);
-                            if (target) {
-                                target.ws.send(JSON.stringify({
-                                    type: data.type,
-                                    from: userName,
-                                    sdp: data.sdp || undefined,
-                                    candidate: data.candidate || undefined
-                                }));
-                                console.log(`📤 ${data.type} -> ${data.target}`);
-                            } else {
-                                console.log(`❌ Hedef bulunamadı: ${data.target}`);
-                            }
-                        }
-
-                        if (data.type === 'leave' && userName) {
-                            clients.delete(userName);
-                            broadcastPeers();
-                            console.log(`❌ ${userName} ayrıldı`);
-                        }
-
-                    } catch (err) {
-                        console.warn('Mesaj hatası:', err);
-                    }
-                });
-
-                ws.on('close', () => {
-                    if (userName) {
-                        clients.delete(userName);
+                    if (data.type === 'register') {
+                        userName = data.name;
+                        clients.set(userName, { ws, ip: userIP });
+                        ws.send(JSON.stringify({ type: 'your-ip', ip: userIP }));
                         broadcastPeers();
-                        console.log(`❌ ${userName} bağlantısı koptu`);
                     }
-                });
+
+                    if (data.type === 'auth_check') {
+                        const target = clients.get(data.target);
+                        if (target) {
+                            // Gerçek şifre kontrolü (basit)
+                            const targetPassword = target.password || '';
+                            if (targetPassword && targetPassword !== data.password) {
+                                ws.send(JSON.stringify({
+                                    type: 'auth_result',
+                                    status: 'error',
+                                    message: 'Şifre yanlış!'
+                                }));
+                                return;
+                            }
+                            ws.send(JSON.stringify({
+                                type: 'auth_result',
+                                status: 'ok'
+                            }));
+                        } else {
+                            ws.send(JSON.stringify({
+                                type: 'auth_result',
+                                status: 'error',
+                                message: 'Hedef bulunamadı'
+                            }));
+                        }
+                    }
+
+                    if (data.type === 'offer' || data.type === 'answer' || data.type === 'candidate') {
+                        const target = clients.get(data.target);
+                        if (target) {
+                            target.ws.send(JSON.stringify({
+                                type: data.type,
+                                from: userName,
+                                sdp: data.sdp || undefined,
+                                candidate: data.candidate || undefined
+                            }));
+                        }
+                    }
+
+                } catch (err) {
+                    console.warn('Mesaj hatası:', err);
+                }
             });
-        }
+
+            ws.on('close', () => {
+                if (userName) {
+                    clients.delete(userName);
+                    broadcastPeers();
+                }
+            });
+        });
 
         wss.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => {
             wss.emit('connection', ws, req);
@@ -71,14 +80,11 @@ export default async function handler(req, res) {
         return;
     }
 
-    res.status(200).json({ message: 'ProShare WebSocket Sunucusu' });
+    res.status(200).json({ message: 'ProShare WebSocket' });
 }
 
 function broadcastPeers() {
-    const peers = Array.from(clients.entries()).map(([name, data]) => ({
-        name: name,
-        ip: data.ip
-    }));
+    const peers = Array.from(clients.keys());
     const message = JSON.stringify({ type: 'peers', peers });
     for (const data of clients.values()) {
         try {
