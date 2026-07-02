@@ -482,26 +482,37 @@ ws.onmessage = async (event) => {
     }
 
     function updateName() {
-        const newName = nameInput.value.trim();
-        if (!newName) {
-            showConnectStatus('❌ İsim gir', 'error');
-            return;
-        }
-        if (newName === myName) {
-            showConnectStatus('ℹ️ Bu zaten mevcut', 'info');
-            return;
-        }
-        myName = newName;
-        myNameEl.textContent = myName;
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                type: 'register',
-                name: myName,
-                password: myPassword || ''
-            }));
-        }
-        showConnectStatus('✅ İsim güncellendi: ' + myName, 'success');
+    const newName = nameInput.value.trim();
+    if (!newName) {
+        showConnectStatus('❌ İsim gir', 'error');
+        return;
     }
+    if (newName === myName) {
+        showConnectStatus('ℹ️ Bu zaten mevcut', 'info');
+        return;
+    }
+
+    // Eski adı sunucudan sil (leave)
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            type: 'leave'
+        }));
+    }
+
+    // Yeni adı kaydet
+    myName = newName;
+    myNameEl.textContent = myName;
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            type: 'register',
+            name: myName,
+            password: myPassword || ''
+        }));
+    }
+
+    showConnectStatus('✅ İsim güncellendi: ' + myName, 'success');
+}
 
     // ============================================================
     //  DOSYA GÖNDER
