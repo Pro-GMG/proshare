@@ -227,33 +227,44 @@
             }));
         };
 
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
+ws.onmessage = async (event) => {
+    try {
+        // Veriyi string'e çevir
+        let rawData;
+        if (event.data instanceof Blob) {
+            rawData = await event.data.text();
+        } else if (event.data instanceof ArrayBuffer) {
+            rawData = new TextDecoder().decode(event.data);
+        } else {
+            rawData = event.data;
+        }
 
-                if (data.type === 'your-ip') {
-                    myIP = data.ip;
-                    myIPEl.textContent = '🌐 ' + myIP;
-                }
+        const data = JSON.parse(rawData);
+        console.log('📨 Gelen:', data);
 
-                if (data.type === 'peers') {
-                    const peers = data.peers || [];
-                    updatePeerList(peers);
-                    peerCount.textContent = peers.length;
-                }
+        if (data.type === 'your-ip') {
+            myIP = data.ip;
+            myIPEl.textContent = '🌐 ' + myIP;
+        }
 
-                if (data.type === 'offer') handleOffer(data);
-                if (data.type === 'answer') handleAnswer(data);
-                if (data.type === 'candidate') handleCandidate(data);
-                if (data.type === 'auth_error') {
-                    showConnectStatus('❌ ' + data.message, 'error');
-                }
+        if (data.type === 'peers') {
+            const peers = data.peers || [];
+            updatePeerList(peers);
+            peerCount.textContent = peers.length;
+        }
 
-            } catch (e) {
-                console.warn('Mesaj hatası:', e);
-            }
-        };
+        if (data.type === 'offer') handleOffer(data);
+        if (data.type === 'answer') handleAnswer(data);
+        if (data.type === 'candidate') handleCandidate(data);
+        if (data.type === 'auth_error') {
+            showConnectStatus('❌ ' + data.message, 'error');
+        }
 
+    } catch (e) {
+        console.warn('Mesaj hatası:', e);
+        console.warn('Gelen veri:', event.data);
+    }
+};
         ws.onclose = () => {
             setStatus('offline', '❌ Bağlantı koptu, yeniden bağlanılıyor...');
             setTimeout(connectToSignalServer, 3000);
