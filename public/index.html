@@ -1,1232 +1,673 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProShare</title>
     <style>
-        /* ============================================================
-           PROSHARE - GÜNCEL ŞİFRELİ SİSTEM (PEERJS YOK)
-           ============================================================ */
-
-        /* ===== RESET ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 520px;
-            margin: 0 auto;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #fff;
-            padding: 24px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 60%);
-            animation: shimmer 8s infinite linear;
-        }
-        @keyframes shimmer {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        .header h1 span {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 2px 14px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 400;
-            margin-left: 8px;
-        }
-        .header .subtitle {
-            font-size: 13px;
-            opacity: 0.7;
-            margin-top: 4px;
-            position: relative;
-            z-index: 1;
-        }
-        .header .status-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            font-size: 14px;
-            position: relative;
-            z-index: 1;
-        }
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .status-dot.online {
-            background: #10b981;
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
-        }
-        .status-dot.offline {
-            background: #ef4444;
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
-        }
-        .status-dot.connecting {
-            background: #f59e0b;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.5;
-                transform: scale(0.85);
-            }
-        }
-
-        /* ===== KARTLAR ===== */
-        .card {
-            background: #fff;
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card-title .badge {
-            background: #667eea;
-            color: #fff;
-            font-size: 11px;
-            padding: 2px 12px;
-            border-radius: 12px;
-            font-weight: 400;
-            margin-left: auto;
-        }
-
-        /* ===== ÖZEL INPUT (Şık) ===== */
-        .custom-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f8f9fa;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 8px 14px;
-            transition: 0.3s;
-            margin-bottom: 8px;
-        }
-        .custom-input:focus-within {
-            border-color: #667eea;
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-        .custom-input .icon {
-            font-size: 18px;
-            opacity: 0.5;
-        }
-        .custom-input input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 8px 0;
-            font-size: 14px;
-            outline: none;
-            color: #1a1a2e;
-        }
-        .custom-input input::placeholder {
-            color: #9ca3af;
-        }
-
-        /* ===== İSİM KUTUSU ===== */
-        .name-box {
-            background: linear-gradient(135deg, #1a1a2e, #2d1b69);
-            color: #fff;
-            padding: 18px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        .name-box .label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.5;
-        }
-        .name-box .name {
-            font-size: 24px;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-            margin-top: 4px;
-        }
-        .name-box .ip {
-            font-size: 12px;
-            opacity: 0.5;
-            margin-top: 4px;
-            font-family: monospace;
-        }
-
-        /* ===== ŞİFRE TOGGLE (Şık) ===== */
-        .password-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0;
-            cursor: pointer;
-            user-select: none;
-        }
-        .password-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
-            cursor: pointer;
-        }
-        .password-toggle .label {
-            font-size: 13px;
-            color: #4b5563;
-        }
-        .password-toggle .label small {
-            color: #9ca3af;
-            font-size: 11px;
-        }
-        .password-input {
-            display: none;
-            margin-top: 6px;
-        }
-        .password-input.active {
-            display: block;
-        }
-
-        /* ===== BUTONLAR ===== */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-            width: auto;
-        }
-
-        /* ===== PEER LIST ===== */
-        .peer-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 10px;
-        }
-        .peer-item {
-            background: #f0f2f5;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid #e5e7eb;
-            transition: 0.2s;
-        }
-        .peer-item:hover {
-            background: #e5e7eb;
-        }
-        .peer-item .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10b981;
-            display: inline-block;
-        }
-        .peer-item .lock {
-            font-size: 12px;
-        }
-
-        /* ===== UPLOAD ===== */
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 32px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #fafafa;
-        }
-        .upload-area:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-        .upload-area.dragover {
-            border-color: #667eea;
-            background: #f0f2ff;
-            transform: scale(1.01);
-        }
-        .upload-area .icon {
-            font-size: 48px;
-            margin-bottom: 6px;
-        }
-        .upload-area .text {
-            color: #6b7280;
-            font-size: 14px;
-        }
-        .upload-area .text strong {
-            color: #667eea;
-        }
-        .upload-area .hint {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 4px;
-        }
-        #fileInput {
-            display: none;
-        }
-
-        /* ===== DOSYA LİSTESİ ===== */
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 10px;
-            margin-top: 4px;
-        }
-        .file-item {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 14px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-            transition: 0.2s;
-        }
-        .file-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        .file-item .icon {
-            font-size: 32px;
-        }
-        .file-item .name {
-            font-size: 13px;
-            font-weight: 500;
-            word-break: break-all;
-            margin-top: 4px;
-        }
-        .file-item .size {
-            font-size: 11px;
-            color: #6b7280;
-        }
-        .file-item .from {
-            font-size: 10px;
-            color: #667eea;
-            margin-top: 2px;
-        }
-        .file-item .actions {
-            display: flex;
-            gap: 4px;
-            justify-content: center;
-            margin-top: 8px;
-        }
-        .file-item .actions button {
-            padding: 4px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .file-item .actions .download-btn {
-            background: #10b981;
-            color: #fff;
-        }
-        .file-item .actions .download-btn:hover {
-            background: #059669;
-        }
-        .file-item .actions .delete-btn {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-        .file-item .actions .delete-btn:hover {
-            background: #dc2626;
-            color: #fff;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 30px 20px;
-            color: #9ca3af;
-        }
-        .empty-state .icon {
-            font-size: 40px;
-            margin-bottom: 6px;
-        }
-        .empty-state h4 {
-            color: #6b7280;
-            font-size: 15px;
-        }
-        .empty-state p {
-            font-size: 13px;
-        }
-
-        /* ===== DURUM MESAJI ===== */
-        .status-msg {
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: none;
-            font-size: 14px;
-            animation: slideDown 0.3s ease;
-        }
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .status-msg.show {
-            display: block;
-        }
-        .status-msg.success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-        .status-msg.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-        .status-msg.info {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
-        }
-
-        /* ===== TABS ===== */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            background: #f0f2f5;
-            padding: 4px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-        }
-        .tab {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #6b7280;
-        }
-        .tab.active {
-            background: #fff;
-            color: #1a1a2e;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-        }
-        .tab:hover:not(.active) {
-            color: #1a1a2e;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        .file-badge {
-            background: #667eea;
-            color: #fff;
-            padding: 0 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            margin-left: 4px;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            .container {
-                padding: 0;
-            }
-            .header {
-                padding: 18px;
-            }
-            .header h1 {
-                font-size: 22px;
-            }
-            .file-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            }
-            .custom-input {
-                padding: 6px 12px;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;padding:16px}
+        .container{max-width:450px;margin:0 auto}
+        .header{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:18px;border-radius:14px;text-align:center;margin-bottom:14px}
+        .header h1{font-size:22px}
+        .header small{font-size:12px;opacity:.6}
+        .header .status-row{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:6px;font-size:13px}
+        .status-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+        .status-dot.online{background:#10b981}
+        .status-dot.offline{background:#ef4444}
+        .status-dot.connecting{background:#f59e0b;animation:pulse 1s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+        .card h2{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+        .badge{background:#667eea;color:#fff;font-size:10px;padding:2px 10px;border-radius:12px;font-weight:400}
+        .name-box{background:linear-gradient(135deg,#1a1a2e,#2d1b69);color:#fff;padding:14px;border-radius:10px;text-align:center}
+        .name-box .label{font-size:10px;opacity:.5;text-transform:uppercase;letter-spacing:1px}
+        .name-box .name{font-size:20px;font-weight:700;font-family:monospace;margin-top:2px}
+        .name-box .ip{font-size:11px;opacity:.5;margin-top:2px;font-family:monospace}
+        .custom-input{display:flex;align-items:center;gap:8px;background:#f8f9fa;border:1px solid #ddd;border-radius:8px;padding:6px 12px;margin-bottom:6px}
+        .custom-input input{flex:1;border:none;background:transparent;padding:6px 0;font-size:13px;outline:none}
+        .custom-input button{padding:4px 12px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:#667eea;color:#fff}
+        .custom-input button:hover{background:#5a6fd6}
+        .connect-row{display:flex;gap:6px}
+        .connect-row input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fafafa}
+        .connect-row input:focus{outline:none;border-color:#667eea}
+        .connect-row button{padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#667eea;color:#fff}
+        .connect-row button:hover{background:#5a6fd6}
+        .btn-danger{background:#ef4444;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;width:100%;margin-top:6px}
+        .btn-danger:hover{background:#dc2626}
+        .password-toggle{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:13px;color:#4b5563}
+        .password-toggle input[type="checkbox"]{width:16px;height:16px;accent-color:#667eea;cursor:pointer}
+        .password-input{display:none;margin-top:4px}
+        .password-input.active{display:block}
+        .peer-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+        .peer-item{background:#e5e7eb;padding:3px 10px;border-radius:12px;font-size:12px;display:flex;align-items:center;gap:4px}
+        .upload-area{border:2px dashed #ddd;border-radius:8px;padding:20px;text-align:center;cursor:pointer;font-size:13px;color:#6b7280;transition:.3s}
+        .upload-area:hover{border-color:#667eea;background:#f8f9ff}
+        .upload-area.dragover{border-color:#667eea;background:#f0f2ff}
+        #fileInput{display:none}
+        .file-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#f8f9fa;border-radius:6px;margin-bottom:4px;font-size:13px}
+        .file-item .info{flex:1}
+        .file-item .info .name{font-weight:500}
+        .file-item .info .size{font-size:11px;color:#6b7280;margin-left:4px}
+        .file-item .info .from{font-size:10px;color:#667eea;margin-left:4px}
+        .file-item button{padding:3px 10px;border:none;border-radius:4px;background:#10b981;color:#fff;cursor:pointer;font-size:11px}
+        .file-item button:hover{background:#059669}
+        .empty-state{text-align:center;padding:20px;color:#9ca3af}
+        .empty-state .icon{font-size:28px}
+        .status-msg{padding:8px 12px;border-radius:8px;margin-top:8px;display:none;font-size:13px}
+        .status-msg.show{display:block}
+        .status-msg.success{background:#d1fae5;color:#065f46}
+        .status-msg.error{background:#fee2e2;color:#991b1b}
+        .status-msg.info{background:#dbeafe;color:#1e40af}
+        .tabs{display:flex;gap:4px;background:#f0f2f5;padding:4px;border-radius:10px;margin-bottom:12px}
+        .tab{flex:1;padding:6px 12px;border:none;background:transparent;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#6b7280}
+        .tab.active{background:#fff;color:#1a1a2e;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .file-badge{background:#667eea;color:#fff;padding:0 8px;border-radius:10px;font-size:10px;margin-left:4px}
+        @media(max-width:480px){.connect-row{flex-direction:column}.connect-row button{width:100%}}
     </style>
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <!-- ===== HEADER ===== -->
-        <div class="header">
-            <h1>📡 ProShare <span>v3</span></h1>
-            <div class="subtitle">Kendi sunucumuz • Şifreli</div>
-            <div class="status-row">
-                <span class="status-dot offline" id="statusDot"></span>
-                <span id="statusText">Bağlanıyor...</span>
-            </div>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>📡 ProShare</h1>
+        <div class="status-row">
+            <span class="status-dot offline" id="statusDot"></span>
+            <span id="statusText">Bağlanıyor...</span>
         </div>
-
-        <!-- ===== BENİM ADIM ===== -->
-        <div class="card">
-            <div class="card-title">
-                👤 Benim Adım
-                <span class="badge" id="peerCount">0 bağlı</span>
-            </div>
-            <div class="name-box">
-                <div class="label">CİHAZ ADI</div>
-                <div class="name" id="myName">-</div>
-                <div class="ip" id="myIP">🌐 IP alınıyor...</div>
-            </div>
-
-            <!-- ===== İSİM DEĞİŞTİR ===== -->
-            <div class="custom-input" style="margin-top:10px;">
-                <span class="icon">✏️</span>
-                <input type="text" id="nameInput" placeholder="Yeni cihaz adı" />
-                <button class="btn btn-primary btn-sm" onclick="updateName()" style="width:auto;">Değiştir</button>
-            </div>
-
-            <!-- ===== ŞİFRE AYARLARI ===== -->
-            <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb;">
-                <div class="password-toggle" onclick="togglePassword()">
-                    <input type="checkbox" id="passwordToggle" />
-                    <span class="label">🔒 Bağlantı şifresi <small>(isteğe bağlı)</small></span>
-                </div>
-                <div class="password-input" id="passwordInputArea">
-                    <div class="custom-input">
-                        <span class="icon">🔑</span>
-                        <input type="text" id="passwordInput" placeholder="Şifre belirleyin (örn: 1234)" />
-                    </div>
-                    <div style="font-size:11px; color:#9ca3af; margin-top:4px;">
-                        ⚡ Alıcı bu şifreyi girmeden bağlanamaz
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== BAĞLAN ===== -->
-        <div class="card">
-            <div class="card-title">
-                🔗 Bağlan
-                <span class="badge" id="connectionBadge">Hazır</span>
-            </div>
-
-            <!-- ===== HEDEF İSİM ===== -->
-            <div class="custom-input">
-                <span class="icon">🎯</span>
-                <input type="text" id="targetName" placeholder="Bağlanmak istediğin cihaz adı" />
-            </div>
-
-            <!-- ===== ŞİFRE GİR ===== -->
-            <div class="custom-input" style="margin-top:4px;">
-                <span class="icon">🔑</span>
-                <input type="password" id="connectPassword" placeholder="Şifre (gerekirse)" />
-            </div>
-
-            <button class="btn btn-primary" onclick="connectToPeer()" id="connectBtn" style="margin-top:6px;">
-                🔗 Bağlan
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="disconnectAll()" style="margin-top:6px; width:100%;">
-                ⛔ Tümünü Kes
-            </button>
-            <div id="connectStatus" class="status-msg"></div>
-        </div>
-
-        <!-- ===== TABS ===== -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('upload')">📤 Gönder</button>
-            <button class="tab" onclick="switchTab('download')">📥 Gelenler <span class="file-badge" id="fileBadge">0</span></button>
-        </div>
-
-        <!-- ===== GÖNDER TAB ===== -->
-        <div id="uploadTab" class="tab-content active">
-            <div class="card">
-                <div class="card-title">📤 Dosya Gönder</div>
-                <div class="upload-area" id="uploadArea">
-                    <div class="icon">📁</div>
-                    <div class="text">Dosyaları buraya <strong>sürükleyin</strong> veya <strong>tıklayın</strong></div>
-                    <div class="hint">📦 Sınırsız boyut • Tüm cihazlara gider</div>
-                </div>
-                <input type="file" id="fileInput" multiple />
-                <div id="uploadStatus" class="status-msg"></div>
-            </div>
-        </div>
-
-        <!-- ===== GELENLER TAB ===== -->
-        <div id="downloadTab" class="tab-content">
-            <div class="card">
-                <div class="card-title">
-                    📥 Gelen Dosyalar
-                    <span class="badge" id="fileCount">0</span>
-                </div>
-                <div id="fileList">
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <h4>Henüz dosya yok</h4>
-                        <p>Bir dosya gönderin veya bekleyin</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <script>
-        // ============================================================
-        //  PROSHARE - KENDİ SUNUCU + ŞİFRE (PEERJS YOK)
-        //  WebSocket + WebRTC
-        // ============================================================
+    <!-- BENİM ADIM -->
+    <div class="card">
+        <h2>👤 Benim Adım</h2>
+        <div class="name-box">
+            <div class="label">CİHAZ ADI</div>
+            <div class="name" id="myName">-</div>
+            <div class="ip" id="myIP">🌐 IP alınıyor...</div>
+        </div>
 
-        const WS_URL = 'wss://' + window.location.host + '/api/socket';
-        let ws = null;
-        let myName = '';
-        let myIP = '';
-        let myPassword = '';
-        let receivedFiles = [];
-        let peerConnections = {};
-        let dataChannels = {};
+        <div class="custom-input">
+            <input type="text" id="nameInput" placeholder="Yeni cihaz adı">
+            <button onclick="updateName()">Değiştir</button>
+        </div>
 
-        // ===== DOM REFS =====
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const myNameEl = document.getElementById('myName');
-        const myIPEl = document.getElementById('myIP');
-        const nameInput = document.getElementById('nameInput');
-        const passwordToggle = document.getElementById('passwordToggle');
-        const passwordInputArea = document.getElementById('passwordInputArea');
-        const passwordInput = document.getElementById('passwordInput');
-        const targetName = document.getElementById('targetName');
-        const connectPassword = document.getElementById('connectPassword');
-        const connectBtn = document.getElementById('connectBtn');
-        const connectStatus = document.getElementById('connectStatus');
-        const peerList = document.getElementById('peerList');
-        const peerCount = document.getElementById('peerCount');
-        const fileList = document.getElementById('fileList');
-        const fileCount = document.getElementById('fileCount');
-        const fileBadge = document.getElementById('fileBadge');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadStatus = document.getElementById('uploadStatus');
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;">
+            <div class="password-toggle" onclick="document.getElementById('passwordToggle').click()">
+                <input type="checkbox" id="passwordToggle">
+                <span>🔒 Bağlantı şifresi <small style="color:#999;font-size:11px;">(isteğe bağlı)</small></span>
+            </div>
+            <div class="password-input" id="passwordInputArea">
+                <div class="custom-input">
+                    <input type="text" id="passwordInput" placeholder="Şifre belirleyin">
+                </div>
+                <div style="font-size:10px;color:#999;">Alıcı bu şifreyi girmeden bağlanamaz</div>
+            </div>
+        </div>
 
-        // ============================================================
-        //  WEBSOCKET BAĞLANTISI
-        // ============================================================
+        <div style="margin-top:8px;">
+            <span style="font-size:12px;color:#6b7280;">Ağdakiler:</span>
+            <span class="badge" id="peerCount">0</span>
+        </div>
+        <div class="peer-list" id="peerList">
+            <span style="color:#9ca3af;font-size:13px;">Henüz cihaz yok</span>
+        </div>
+    </div>
 
-        function connectToSignalServer() {
-            setStatus('connecting', '🔄 Bağlanıyor...');
+    <!-- BAĞLAN -->
+    <div class="card">
+        <h2>🔗 Bağlan</h2>
+        <div class="connect-row">
+            <input type="text" id="targetName" placeholder="Cihaz adı">
+            <button onclick="connectToPeer()">Bağlan</button>
+        </div>
+        <div class="custom-input" style="margin-top:4px;">
+            <input type="password" id="connectPassword" placeholder="Şifre (gerekirse)">
+        </div>
+        <button class="btn-danger" onclick="disconnectAll()">⛔ Tümünü Kes</button>
+        <div id="connectStatus" class="status-msg"></div>
+    </div>
 
-            try {
-                ws = new WebSocket(WS_URL);
-            } catch (e) {
-                setStatus('offline', '❌ WebSocket desteklenmiyor');
-                return;
-            }
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('upload')">📤 Gönder</button>
+        <button class="tab" onclick="switchTab('download')">📥 Gelenler <span class="file-badge" id="fileBadge">0</span></button>
+    </div>
 
-            ws.onopen = () => {
-                setStatus('online', '✅ Sunucuya bağlandı');
-                myName = 'Cihaz-' + Math.floor(Math.random() * 1000);
-                myNameEl.textContent = myName;
-                ws.send(JSON.stringify({
-                    type: 'register',
-                    name: myName,
-                    password: myPassword || ''
-                }));
-            };
+    <!-- GÖNDER -->
+    <div id="uploadTab" class="tab-content active">
+        <div class="card">
+            <h2>📤 Dosya Gönder</h2>
+            <div class="upload-area" id="uploadArea">
+                <div style="font-size:32px;">📁</div>
+                <div>Tıkla veya <strong>sürükle</strong></div>
+            </div>
+            <input type="file" id="fileInput" multiple>
+            <div id="uploadStatus" class="status-msg"></div>
+        </div>
+    </div>
 
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
+    <!-- GELENLER -->
+    <div id="downloadTab" class="tab-content">
+        <div class="card">
+            <h2>📥 Gelen Dosyalar <span class="badge" id="fileCount">0</span></h2>
+            <div id="fileList">
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <h4>Henüz dosya yok</h4>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    if (data.type === 'your-ip') {
-                        myIP = data.ip;
-                        myIPEl.textContent = '🌐 ' + myIP;
-                    }
+</div>
 
-                    if (data.type === 'peers') {
-                        const peers = data.peers || [];
-                        updatePeerList(peers);
-                        peerCount.textContent = peers.length + ' bağlı';
-                    }
+<script>
+    // ============================================================
+    //  PROSHARE - KENDİ SUNUCU + ŞİFRE (SADE)
+    // ============================================================
 
-                    if (data.type === 'offer') {
-                        handleOffer(data);
-                    }
-                    if (data.type === 'answer') {
-                        handleAnswer(data);
-                    }
-                    if (data.type === 'candidate') {
-                        handleCandidate(data);
-                    }
+    const WS_URL = 'wss://' + window.location.host + '/api/socket';
+    let ws = null;
+    let myName = '';
+    let myIP = '';
+    let myPassword = '';
+    let receivedFiles = [];
+    let peerConnections = {};
+    let dataChannels = {};
 
-                    if (data.type === 'auth_error') {
-                        showConnectStatus('❌ ' + data.message, 'error');
-                    }
+    // DOM
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const myNameEl = document.getElementById('myName');
+    const myIPEl = document.getElementById('myIP');
+    const nameInput = document.getElementById('nameInput');
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInputArea = document.getElementById('passwordInputArea');
+    const passwordInput = document.getElementById('passwordInput');
+    const targetName = document.getElementById('targetName');
+    const connectPassword = document.getElementById('connectPassword');
+    const connectBtn = document.querySelector('.connect-row button');
+    const connectStatus = document.getElementById('connectStatus');
+    const peerList = document.getElementById('peerList');
+    const peerCount = document.getElementById('peerCount');
+    const fileList = document.getElementById('fileList');
+    const fileCount = document.getElementById('fileCount');
+    const fileBadge = document.getElementById('fileBadge');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const uploadStatus = document.getElementById('uploadStatus');
 
-                } catch (e) {
-                    console.warn('Mesaj hatası:', e);
-                }
-            };
+    // ============================================================
+    //  WEBSOCKET
+    // ============================================================
 
-            ws.onclose = () => {
-                setStatus('offline', '❌ Bağlantı koptu, yeniden bağlanılıyor...');
-                setTimeout(connectToSignalServer, 3000);
-            };
+    function connectToSignalServer() {
+        setStatus('connecting', '🔄 Bağlanıyor...');
 
-            ws.onerror = () => {
-                setStatus('offline', '❌ Bağlanılamadı');
-            };
+        try {
+            ws = new WebSocket(WS_URL);
+            ws.binaryType = 'arraybuffer';
+        } catch (e) {
+            setStatus('offline', '❌ WebSocket desteklenmiyor');
+            return;
         }
 
-        function setStatus(state, text) {
-            statusDot.className = 'status-dot ' + state;
-            statusText.textContent = text;
-        }
-
-        // ============================================================
-        //  WEBRTC (KENDİ KODUMUZ)
-        // ============================================================
-
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
-            ],
-            iceCandidatePoolSize: 10
+        ws.onopen = () => {
+            setStatus('online', '✅ Sunucuya bağlandı');
+            myName = 'Cihaz-' + Math.floor(Math.random() * 1000);
+            myNameEl.textContent = myName;
+            ws.send(JSON.stringify({
+                type: 'register',
+                name: myName,
+                password: myPassword || ''
+            }));
         };
 
-        function createPeerConnection(targetName) {
-            const pc = new RTCPeerConnection(configuration);
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
 
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    ws.send(JSON.stringify({
-                        type: 'candidate',
-                        target: targetName,
-                        candidate: event.candidate
-                    }));
+                if (data.type === 'your-ip') {
+                    myIP = data.ip;
+                    myIPEl.textContent = '🌐 ' + myIP;
                 }
-            };
 
-            pc.ondatachannel = (event) => {
-                const channel = event.channel;
-                dataChannels[targetName] = channel;
-                setupDataChannel(channel, targetName);
-            };
-
-            pc.onconnectionstatechange = () => {
-                console.log('🔗 Bağlantı durumu:', pc.connectionState);
-                if (pc.connectionState === 'connected') {
-                    showConnectStatus('✅ Bağlantı kuruldu!', 'success');
+                if (data.type === 'peers') {
+                    const peers = data.peers || [];
+                    updatePeerList(peers);
+                    peerCount.textContent = peers.length;
                 }
-                if (pc.connectionState === 'failed') {
-                    showConnectStatus('❌ Bağlantı başarısız', 'error');
-                    delete peerConnections[targetName];
+
+                if (data.type === 'offer') handleOffer(data);
+                if (data.type === 'answer') handleAnswer(data);
+                if (data.type === 'candidate') handleCandidate(data);
+                if (data.type === 'auth_error') {
+                    showConnectStatus('❌ ' + data.message, 'error');
                 }
-            };
 
-            return pc;
-        }
-
-        function setupDataChannel(channel, from) {
-            channel.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'file') {
-                        const file = {
-                            id: Date.now(),
-                            name: data.name,
-                            size: data.size,
-                            sizeFormatted: formatBytes(data.size),
-                            data: data.data,
-                            from: from
-                        };
-                        receivedFiles.push(file);
-                        updateFileList();
-                        showUploadStatus('📥 Dosya alındı: ' + file.name, 'success');
-                    }
-                } catch (e) {
-                    console.warn('Veri hatası:', e);
-                }
-            };
-        }
-
-        // ===== BAĞLAN =====
-        function connectToPeer() {
-            const target = targetName.value.trim();
-            if (!target) {
-                showConnectStatus('❌ Lütfen bir cihaz adı girin', 'error');
-                return;
+            } catch (e) {
+                console.warn('Mesaj hatası:', e);
             }
-            if (target === myName) {
-                showConnectStatus('❌ Kendine bağlanamazsın!', 'error');
-                return;
-            }
+        };
 
-            const password = connectPassword.value.trim() || '';
-            showConnectStatus('🔗 Bağlanıyor: ' + target, 'info');
-            connectBtn.disabled = true;
+        ws.onclose = () => {
+            setStatus('offline', '❌ Bağlantı koptu, yeniden bağlanılıyor...');
+            setTimeout(connectToSignalServer, 3000);
+        };
 
-            // Önce şifre kontrolü yap
-            ws.send(JSON.stringify({
-                type: 'auth_check',
-                target: target,
-                password: password
-            }));
+        ws.onerror = () => {
+            setStatus('offline', '❌ Bağlanılamadı, yeniden deneniyor...');
+            setTimeout(connectToSignalServer, 5000);
+        };
+    }
 
-            // Cevapları dinle
-            const authHandler = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'auth_result') {
-                        if (data.status === 'ok') {
-                            startWebRTC(target);
-                        } else {
-                            showConnectStatus('❌ Şifre yanlış!', 'error');
-                            connectBtn.disabled = false;
-                        }
-                        ws.removeEventListener('message', authHandler);
-                    }
-                } catch (e) {}
-            };
-            ws.addEventListener('message', authHandler);
+    function setStatus(state, text) {
+        statusDot.className = 'status-dot ' + state;
+        statusText.textContent = text;
+    }
 
-            // 10 saniye timeout
-            setTimeout(() => {
-                ws.removeEventListener('message', authHandler);
-                if (connectBtn.disabled) {
-                    showConnectStatus('⏰ Zaman aşımı', 'error');
-                    connectBtn.disabled = false;
-                }
-            }, 10000);
-        }
+    // ============================================================
+    //  WEBRTC
+    // ============================================================
 
-        function startWebRTC(target) {
-            const pc = createPeerConnection(target);
-            const channel = pc.createDataChannel('fileTransfer');
-            dataChannels[target] = channel;
-            setupDataChannel(channel, target);
+    const configuration = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' },
+            // TURN (Android için)
+            { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+            { urls: 'turn:openrelay.metered.ca:5349', username: 'openrelayproject', credential: 'openrelayproject' }
+        ],
+        iceCandidatePoolSize: 10,
+        iceTransportPolicy: 'all'
+    };
 
-            pc.createOffer()
-                .then(offer => pc.setLocalDescription(offer))
-                .then(() => {
-                    ws.send(JSON.stringify({
-                        type: 'offer',
-                        target: target,
-                        sdp: pc.localDescription
-                    }));
-                })
-                .catch((err) => {
-                    console.warn('Offer hatası:', err);
-                    showConnectStatus('❌ Bağlantı hatası', 'error');
-                });
+    function createPeerConnection(targetName) {
+        const pc = new RTCPeerConnection(configuration);
 
-            peerConnections[target] = pc;
-            connectBtn.disabled = false;
-        }
-
-        function handleOffer(data) {
-            const pc = createPeerConnection(data.from);
-            pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-                .then(() => pc.createAnswer())
-                .then(answer => pc.setLocalDescription(answer))
-                .then(() => {
-                    ws.send(JSON.stringify({
-                        type: 'answer',
-                        target: data.from,
-                        sdp: pc.localDescription
-                    }));
-                })
-                .catch(err => console.warn('Offer hatası:', err));
-            peerConnections[data.from] = pc;
-        }
-
-        function handleAnswer(data) {
-            const pc = peerConnections[data.from];
-            if (pc) {
-                pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-                    .catch(err => console.warn('Answer hatası:', err));
-            }
-        }
-
-        function handleCandidate(data) {
-            const pc = peerConnections[data.from];
-            if (pc) {
-                pc.addIceCandidate(new RTCIceCandidate(data.candidate))
-                    .catch(err => console.warn('Candidate hatası:', err));
-            }
-        }
-
-        function disconnectAll() {
-            for (const [name, pc] of Object.entries(peerConnections)) {
-                try { pc.close(); } catch (e) {}
-            }
-            peerConnections = {};
-            dataChannels = {};
-            showConnectStatus('⛔ Tüm bağlantılar kesildi', 'info');
-        }
-
-        // ============================================================
-        //  İSİM ve ŞİFRE
-        // ============================================================
-
-        function togglePassword() {
-            const checked = passwordToggle.checked;
-            passwordInputArea.classList.toggle('active', checked);
-            if (!checked) {
-                passwordInput.value = '';
-                myPassword = '';
-            }
-        }
-
-        function updateName() {
-            const newName = nameInput.value.trim();
-            if (!newName) {
-                showConnectStatus('❌ Lütfen bir isim girin', 'error');
-                return;
-            }
-            if (newName === myName) {
-                showConnectStatus('ℹ️ Bu zaten mevcut ismin', 'info');
-                return;
-            }
-
-            myName = newName;
-            myNameEl.textContent = myName;
-            if (ws && ws.readyState === WebSocket.OPEN) {
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
                 ws.send(JSON.stringify({
-                    type: 'register',
-                    name: myName,
-                    password: myPassword || ''
+                    type: 'candidate',
+                    target: targetName,
+                    candidate: event.candidate
                 }));
             }
-            showConnectStatus('✅ İsim güncellendi: ' + myName, 'success');
+        };
+
+        pc.ondatachannel = (event) => {
+            const channel = event.channel;
+            dataChannels[targetName] = channel;
+            setupDataChannel(channel, targetName);
+        };
+
+        pc.onconnectionstatechange = () => {
+            if (pc.connectionState === 'connected') {
+                showConnectStatus('✅ Bağlantı kuruldu!', 'success');
+            }
+            if (pc.connectionState === 'failed') {
+                showConnectStatus('❌ Bağlantı başarısız', 'error');
+                delete peerConnections[targetName];
+            }
+        };
+
+        return pc;
+    }
+
+    function setupDataChannel(channel, from) {
+        channel.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'file') {
+                    const file = {
+                        id: Date.now(),
+                        name: data.name,
+                        size: data.size,
+                        sizeFormatted: formatBytes(data.size),
+                        data: data.data,
+                        from: from
+                    };
+                    receivedFiles.push(file);
+                    updateFileList();
+                    showUploadStatus('📥 Dosya alındı: ' + file.name, 'success');
+                }
+            } catch (e) {
+                console.warn('Veri hatası:', e);
+            }
+        };
+    }
+
+    // ===== BAĞLAN =====
+    function connectToPeer() {
+        const target = targetName.value.trim();
+        if (!target) {
+            showConnectStatus('❌ Cihaz adı gir', 'error');
+            return;
+        }
+        if (target === myName) {
+            showConnectStatus('❌ Kendine bağlanamazsın!', 'error');
+            return;
         }
 
-        // ============================================================
-        //  DOSYA GÖNDER
-        // ============================================================
+        const password = connectPassword.value.trim() || '';
+        showConnectStatus('🔗 Bağlanıyor: ' + target, 'info');
+        connectBtn.disabled = true;
 
-        function sendFile(file) {
-            const peers = Object.keys(dataChannels);
-            if (peers.length === 0) {
-                showUploadStatus('❌ Bağlı cihaz yok!', 'error');
-                return false;
-            }
+        ws.send(JSON.stringify({
+            type: 'auth_check',
+            target: target,
+            password: password
+        }));
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const data = {
-                    type: 'file',
-                    name: file.name,
-                    size: file.size,
-                    data: e.target.result.split(',')[1]
-                };
-
-                let sent = 0;
-                for (const [name, channel] of Object.entries(dataChannels)) {
-                    try {
-                        if (channel.readyState === 'open') {
-                            channel.send(JSON.stringify(data));
-                            sent++;
-                        }
-                    } catch (err) {
-                        console.warn('Gönderme hatası:', err);
+        const authHandler = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'auth_result') {
+                    if (data.status === 'ok') {
+                        startWebRTC(target);
+                    } else {
+                        showConnectStatus('❌ Şifre yanlış!', 'error');
+                        connectBtn.disabled = false;
                     }
+                    ws.removeEventListener('message', authHandler);
                 }
+            } catch (e) {}
+        };
+        ws.addEventListener('message', authHandler);
 
-                if (sent > 0) {
-                    showUploadStatus('📤 Gönderildi: ' + file.name + ' (' + sent + ' cihaz)', 'success');
-                } else {
-                    showUploadStatus('❌ Gönderilemedi', 'error');
-                }
+        setTimeout(() => {
+            ws.removeEventListener('message', authHandler);
+            if (connectBtn.disabled) {
+                showConnectStatus('⏰ Zaman aşımı', 'error');
+                connectBtn.disabled = false;
+            }
+        }, 30000);
+    }
+
+    function startWebRTC(target) {
+        const pc = createPeerConnection(target);
+        const channel = pc.createDataChannel('fileTransfer');
+        dataChannels[target] = channel;
+        setupDataChannel(channel, target);
+
+        pc.createOffer()
+            .then(offer => pc.setLocalDescription(offer))
+            .then(() => {
+                ws.send(JSON.stringify({
+                    type: 'offer',
+                    target: target,
+                    sdp: pc.localDescription
+                }));
+            })
+            .catch((err) => {
+                console.warn('Offer hatası:', err);
+                showConnectStatus('❌ Bağlantı hatası', 'error');
+            });
+
+        peerConnections[target] = pc;
+        connectBtn.disabled = false;
+    }
+
+    function handleOffer(data) {
+        const pc = createPeerConnection(data.from);
+        pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+            .then(() => pc.createAnswer())
+            .then(answer => pc.setLocalDescription(answer))
+            .then(() => {
+                ws.send(JSON.stringify({
+                    type: 'answer',
+                    target: data.from,
+                    sdp: pc.localDescription
+                }));
+            })
+            .catch(err => console.warn('Offer hatası:', err));
+        peerConnections[data.from] = pc;
+    }
+
+    function handleAnswer(data) {
+        const pc = peerConnections[data.from];
+        if (pc) {
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+                .catch(err => console.warn('Answer hatası:', err));
+        }
+    }
+
+    function handleCandidate(data) {
+        const pc = peerConnections[data.from];
+        if (pc) {
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate))
+                .catch(err => console.warn('Candidate hatası:', err));
+        }
+    }
+
+    function disconnectAll() {
+        for (const [name, pc] of Object.entries(peerConnections)) {
+            try { pc.close(); } catch (e) {}
+        }
+        peerConnections = {};
+        dataChannels = {};
+        showConnectStatus('⛔ Tüm bağlantılar kesildi', 'info');
+    }
+
+    // ============================================================
+    //  İSİM & ŞİFRE
+    // ============================================================
+
+    function togglePassword() {
+        const checked = passwordToggle.checked;
+        passwordInputArea.classList.toggle('active', checked);
+        if (!checked) {
+            passwordInput.value = '';
+            myPassword = '';
+        }
+    }
+
+    function updateName() {
+        const newName = nameInput.value.trim();
+        if (!newName) {
+            showConnectStatus('❌ İsim gir', 'error');
+            return;
+        }
+        if (newName === myName) {
+            showConnectStatus('ℹ️ Bu zaten mevcut', 'info');
+            return;
+        }
+        myName = newName;
+        myNameEl.textContent = myName;
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'register',
+                name: myName,
+                password: myPassword || ''
+            }));
+        }
+        showConnectStatus('✅ İsim güncellendi: ' + myName, 'success');
+    }
+
+    // ============================================================
+    //  DOSYA GÖNDER
+    // ============================================================
+
+    function sendFile(file) {
+        const peers = Object.keys(dataChannels);
+        if (peers.length === 0) {
+            showUploadStatus('❌ Bağlı cihaz yok!', 'error');
+            return false;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = {
+                type: 'file',
+                name: file.name,
+                size: file.size,
+                data: e.target.result.split(',')[1]
             };
-            reader.readAsDataURL(file);
-            return true;
-        }
 
-        // ============================================================
-        //  UI GÜNCELLEMELERİ
-        // ============================================================
-
-        function updatePeerList(peers) {
-            const peersWithoutMe = peers.filter(p => p !== myName);
-
-            if (peersWithoutMe.length === 0) {
-                peerList.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Henüz bağlı cihaz yok</span>';
-                return;
+            let sent = 0;
+            for (const [name, channel] of Object.entries(dataChannels)) {
+                try {
+                    if (channel.readyState === 'open') {
+                        channel.send(JSON.stringify(data));
+                        sent++;
+                    }
+                } catch (err) {
+                    console.warn('Gönderme hatası:', err);
+                }
             }
 
-            peerList.innerHTML = peersWithoutMe.map(p =>
-                `<span class="peer-item">
-                    <span class="dot"></span>
-                    ${p}
-                    <span class="lock">🔒</span>
-                </span>`
-            ).join('');
-        }
-
-        function updateFileList() {
-            const count = receivedFiles.length;
-            fileCount.textContent = count;
-            fileBadge.textContent = count;
-
-            if (count === 0) {
-                fileList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <h4>Henüz dosya yok</h4>
-                        <p>Bir dosya gönderin veya bekleyin</p>
-                    </div>
-                `;
-                return;
-            }
-
-            fileList.innerHTML = receivedFiles.map(file =>
-                `<div class="file-item">
-                    <div class="icon">${getFileIcon(file.name)}</div>
-                    <div class="name">${file.name}</div>
-                    <div class="size">${file.sizeFormatted}</div>
-                    <div class="from">📡 ${file.from || '?'}</div>
-                    <div class="actions">
-                        <button class="download-btn" onclick="downloadFile('${file.id}')">📥</button>
-                        <button class="delete-btn" onclick="deleteFile('${file.id}')">🗑️</button>
-                    </div>
-                </div>`
-            ).join('');
-        }
-
-        function downloadFile(id) {
-            const file = receivedFiles.find(f => f.id == id);
-            if (file) {
-                const a = document.createElement('a');
-                a.href = 'data:application/octet-stream;base64,' + file.data;
-                a.download = file.name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
-        }
-
-        function deleteFile(id) {
-            if (!confirm('Bu dosyayı silmek istediğine emin misin?')) return;
-            receivedFiles = receivedFiles.filter(f => f.id != id);
-            updateFileList();
-            showUploadStatus('🗑️ Dosya silindi', 'success');
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-
-            if (tab === 'upload') {
-                document.querySelector('.tab:first-child').classList.add('active');
-                document.getElementById('uploadTab').classList.add('active');
+            if (sent > 0) {
+                showUploadStatus('📤 Gönderildi: ' + file.name + ' (' + sent + ' cihaz)', 'success');
             } else {
-                document.querySelector('.tab:last-child').classList.add('active');
-                document.getElementById('downloadTab').classList.add('active');
+                showUploadStatus('❌ Gönderilemedi', 'error');
+            }
+        };
+        reader.readAsDataURL(file);
+        return true;
+    }
+
+    // ============================================================
+    //  UI
+    // ============================================================
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            for (const file of e.dataTransfer.files) {
+                sendFile(file);
             }
         }
-
-        function showConnectStatus(msg, type) {
-            connectStatus.className = 'status-msg show ' + type;
-            connectStatus.textContent = msg;
-            setTimeout(() => { connectStatus.className = 'status-msg'; }, 4000);
-        }
-
-        function showUploadStatus(msg, type) {
-            uploadStatus.className = 'status-msg show ' + type;
-            uploadStatus.textContent = msg;
-            setTimeout(() => { uploadStatus.className = 'status-msg'; }, 4000);
-        }
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        }
-
-        function getFileIcon(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const icons = {
-                pdf: '📄',
-                doc: '📝',
-                docx: '📝',
-                xls: '📊',
-                xlsx: '📊',
-                ppt: '📽️',
-                pptx: '📽️',
-                jpg: '🖼️',
-                jpeg: '🖼️',
-                png: '🖼️',
-                gif: '🖼️',
-                svg: '🖼️',
-                mp3: '🎵',
-                wav: '🎵',
-                mp4: '🎬',
-                avi: '🎬',
-                mkv: '🎬',
-                mov: '🎬',
-                zip: '📦',
-                rar: '📦',
-                '7z': '📦',
-                txt: '📃',
-                js: '💻',
-                html: '🌐',
-                css: '🎨',
-                json: '📋',
-                exe: '⚙️',
-                msi: '⚙️',
-                apk: '📱',
-                ipa: '📱'
-            };
-            return icons[ext] || '📄';
-        }
-
-        // ============================================================
-        //  UPLOAD AREA
-        // ============================================================
-
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                for (const file of e.dataTransfer.files) {
-                    sendFile(file);
-                }
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+            for (const file of e.target.files) {
+                sendFile(file);
             }
-        });
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                for (const file of e.target.files) {
-                    sendFile(file);
-                }
-            }
-            fileInput.value = '';
-        });
+        }
+        fileInput.value = '';
+    });
 
-        // ============================================================
-        //  ŞİFRE AYARLARI
-        // ============================================================
+    function updatePeerList(peers) {
+        const peersWithoutMe = peers.filter(p => p !== myName);
+        if (peersWithoutMe.length === 0) {
+            peerList.innerHTML = '<span style="color:#9ca3af;font-size:13px;">Henüz cihaz yok</span>';
+            return;
+        }
+        peerList.innerHTML = peersWithoutMe.map(p =>
+            `<span class="peer-item">✅ ${p}</span>`
+        ).join('');
+    }
 
-        document.getElementById('passwordToggle').addEventListener('change', function() {
-            passwordInputArea.classList.toggle('active', this.checked);
-            if (!this.checked) {
-                passwordInput.value = '';
-                myPassword = '';
-            }
-        });
+    function updateFileList() {
+        const count = receivedFiles.length;
+        fileCount.textContent = count;
+        fileBadge.textContent = count;
 
-        passwordInput.addEventListener('input', function() {
-            myPassword = this.value.trim();
-        });
+        if (count === 0) {
+            fileList.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <h4>Henüz dosya yok</h4>
+                </div>
+            `;
+            return;
+        }
 
-        // ============================================================
-        //  BAŞLAT
-        // ============================================================
+        fileList.innerHTML = receivedFiles.map(file =>
+            `<div class="file-item">
+                <div class="info">
+                    <span class="name">${file.name}</span>
+                    <span class="size">${file.sizeFormatted}</span>
+                    <span class="from">📡 ${file.from || '?'}</span>
+                </div>
+                <button onclick="downloadFile('${file.id}')">📥</button>
+            </div>`
+        ).join('');
+    }
 
-        connectToSignalServer();
-    </script>
+    function downloadFile(id) {
+        const file = receivedFiles.find(f => f.id == id);
+        if (file) {
+            const a = document.createElement('a');
+            a.href = 'data:application/octet-stream;base64,' + file.data;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        if (tab === 'upload') {
+            document.querySelector('.tab:first-child').classList.add('active');
+            document.getElementById('uploadTab').classList.add('active');
+        } else {
+            document.querySelector('.tab:last-child').classList.add('active');
+            document.getElementById('downloadTab').classList.add('active');
+        }
+    }
+
+    function showConnectStatus(msg, type) {
+        connectStatus.className = 'status-msg show ' + type;
+        connectStatus.textContent = msg;
+        setTimeout(() => { connectStatus.className = 'status-msg'; }, 4000);
+    }
+
+    function showUploadStatus(msg, type) {
+        uploadStatus.className = 'status-msg show ' + type;
+        uploadStatus.textContent = msg;
+        setTimeout(() => { uploadStatus.className = 'status-msg'; }, 4000);
+    }
+
+    function formatBytes(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // ============================================================
+    //  ŞİFRE TOGGLE
+    // ============================================================
+
+    document.getElementById('passwordToggle').addEventListener('change', function() {
+        passwordInputArea.classList.toggle('active', this.checked);
+        if (!this.checked) {
+            passwordInput.value = '';
+            myPassword = '';
+        }
+    });
+
+    passwordInput.addEventListener('input', function() {
+        myPassword = this.value.trim();
+    });
+
+    // ============================================================
+    //  BAŞLAT
+    // ============================================================
+
+    connectToSignalServer();
+</script>
 
 </body>
 </html>
